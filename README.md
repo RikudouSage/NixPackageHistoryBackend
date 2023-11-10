@@ -1,5 +1,7 @@
 # Nix package version search
 
+> See the frontend for this project at [RikudouSage/NixPackageHistoryFrontend](https://github.com/RikudouSage/NixPackageHistoryFrontend).
+
 This is a backend for searching previous versions of nix packages, similar to [lazamar/nix-package-versions](https://github.com/lazamar/nix-package-versions).
 Except that one stopped working for me, so I made this one.
 
