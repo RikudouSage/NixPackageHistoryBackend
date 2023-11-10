@@ -1,0 +1,88 @@
+openapi: '3.0.0'
+
+info:
+  version: 1.0.0
+  title: Nix package version search
+
+paths:
+  /packages:
+    get:
+      summary: Get list of package names
+      description: Returns a list of all package names without their versions
+      tags:
+        - Packages
+      responses:
+        200:
+          description: OK, returns list of all package names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  - php
+                  - php82
+                  - symfony-cli
+                  - git
+                  - php82.packages.composer
+  /packages/{package}:
+    get:
+      summary: Get all versions of a single package
+      description: Returns an array with Package objects for every version of the provided software
+      tags:
+        - Packages
+      parameters:
+        - $ref: '#/components/parameters/Package'
+      responses:
+        200:
+          description: OK, returns an array with all available versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+  /packages/{package}/{version}:
+    get:
+      summary: Get a single version of a package
+      description: Returns a Package object for given version and package
+      tags:
+        - Packages
+      parameters:
+        - $ref: '#/components/parameters/Package'
+        - in: path
+          name: version
+          schema:
+            type: string
+          example: 8.2.12
+      responses:
+        200:
+          description: OK, returns the object with a single version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+components:
+  schemas:
+    Package:
+      description: A package with a version and git revision
+      type: object
+      properties:
+        name:
+          type: string
+          example: php
+        revision:
+          type: string
+          example: f895a4ef0f01f9d2af2370533829c4f03ec408f4
+        version:
+          type: string
+          example: 8.2.12
+  parameters:
+    Package:
+      in: path
+      name: package
+      description: The name of the package
+      schema:
+        type: string
+      example: php
