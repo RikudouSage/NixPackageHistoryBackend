@@ -62,6 +62,18 @@
             "config/packages/nyholm_psr7.yaml"
         ]
     },
+    "rikudou/psr6-dynamo-db-bundle": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "b8c90b14aff68e58377f293274db6e5a9855445a"
+        },
+        "files": [
+            "config/packages/prod/rikudou_dynamo_db_cache.yaml"
+        ]
+    },
     "symfony/apache-pack": {
         "version": "1.0",
         "recipe": {
@@ -115,6 +127,18 @@
             "public/index.php",
             "src/Controller/.gitignore",
             "src/Kernel.php"
+        ]
+    },
+    "symfony/lock": {
+        "version": "6.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.2",
+            "ref": "8e937ff2b4735d110af1770f242c1107fdab4c8e"
+        },
+        "files": [
+            "config/packages/lock.yaml"
         ]
     },
     "symfony/maker-bundle": {

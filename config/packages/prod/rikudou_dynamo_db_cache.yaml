@@ -1,0 +1,4 @@
+rikudou_dynamo_db_cache:
+    table: '%env(DYNAMODB_CACHE_TABLE)%'
+    client_config:
+        region: '%env(AWS_REGION)%'

@@ -8,6 +8,20 @@ provider:
     # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
     stage: prod
     runtime: provided.al2
+    iam:
+      role:
+        statements:
+          - Effect: Allow
+            Resource:
+              - !GetAtt CacheTable.Arn
+            Action:
+              - dynamodb:DescribeTable
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
     stackTags:
         BillingProject: NixOsPackageSearch
         BillingSubproject: NixOsPackageSearchBackend
@@ -15,6 +29,8 @@ provider:
         # Symfony environment variables
         APP_ENV: ${self:provider.stage}
         APP_SECRET: !Join [ '', [ '{{resolve:secretsmanager:', !Ref AppSecret, ':SecretString:secret}}' ] ]
+        DYNAMODB_CACHE_TABLE: !Ref CacheTable
+        RATE_LIMIT_CACHE_SERVICE: rikudou.dynamo_cache.cache
 
 custom:
     Domain: ${env:DOMAIN_NAME}
@@ -62,6 +78,19 @@ package:
 
 resources:
     Resources:
+        CacheTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                BillingMode: PAY_PER_REQUEST
+                TimeToLiveSpecification:
+                    AttributeName: ttl
+                    Enabled: true
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
         AppSecret:
             Type: AWS::SecretsManager::Secret
             Properties:

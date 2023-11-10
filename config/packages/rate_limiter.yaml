@@ -1,0 +1,17 @@
+framework:
+  rate_limiter:
+    all_packages:
+      policy: fixed_window
+      limit: 4
+      interval: 5 minutes
+      cache_pool: cache.rate_limiter
+    package_versions:
+      policy: fixed_window
+      limit: 100
+      interval: 1 minute
+      cache_pool: cache.rate_limiter
+    package_version_detail:
+      policy: sliding_window
+      limit: 500
+      interval: 10 minutes
+      cache_pool: cache.rate_limiter
