@@ -1,0 +1,132 @@
+# Read the documentation at https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml/
+service: NixOsPackageSearchBackend
+
+provider:
+    name: aws
+    # The AWS region in which to deploy (us-east-1 is the default)
+    region: eu-central-1
+    # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
+    stage: prod
+    runtime: provided.al2
+    environment:
+        # Symfony environment variables
+        APP_ENV: ${self:provider.stage}
+        APP_SECRET: !Join [ '', [ '{{resolve:secretsmanager:', !Ref AppSecret, ':SecretString:secret}}' ] ]
+
+custom:
+    Domain: ${env:DOMAIN_NAME}
+    DomainZone: ${env:DOMAIN_ZONE}
+    ServiceToken: !Join [':', ['arn:aws:lambda', !Ref AWS::Region, !Ref AWS::AccountId, 'function:AcmCustomResources-prod-customResources']]
+
+plugins:
+    - ./vendor/bref/bref
+
+functions:
+    # This function runs the Symfony website/API
+    web:
+        handler: public/index.php
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+        memorySize: 512
+        layers:
+            - ${bref:layer.php-82-fpm}
+        events:
+            - httpApi: '*'
+    # This function let us run console commands in Lambda
+    console:
+        handler: bin/console
+        timeout: 120 # in seconds
+        memorySize: 128
+        layers:
+            - ${bref:layer.php-82} # PHP
+            - ${bref:layer.console} # The "console" layer
+
+package:
+    patterns:
+        # Excluded files and folders for deployment
+        - '!assets/**'
+        - '!node_modules/**'
+        - '!public/build/**'
+        - '!tests/**'
+        - '!var/**'
+        # If you want to include files and folders that are part of excluded folders,
+        # add them at the end
+        - 'var/cache/prod/**'
+        - 'public/build/entrypoints.json'
+        - 'public/build/manifest.json'
+        - var/database.db
+
+resources:
+    Resources:
+        AppSecret:
+            Type: AWS::SecretsManager::Secret
+            Properties:
+                Description: ${self:service} App secret
+                GenerateSecretString:
+                    SecretStringTemplate: '{}'
+                    GenerateStringKey: "secret"
+                    PasswordLength: 32
+                    RequireEachIncludedType: true
+                    ExcludeUppercase: true
+                    ExcludePunctuation: true
+                    ExcludeCharacters: ghijklmnopqrstuvwxyz
+        Certificate:
+            Type: Custom::Certificate
+            Properties:
+                DomainName: ${self:custom.Domain}
+                ValidationMethod: DNS
+                ServiceToken: ${self:custom.ServiceToken}
+        CertificateBlocker:
+            Type: Custom::IssuedCertificate
+            DependsOn:
+                - DnsRecordsCertificateValidation
+            Properties:
+                CertificateArn: !Ref Certificate
+                ServiceToken: ${self:custom.ServiceToken}
+        CertificateDnsRecord:
+            Type: Custom::CertificateDNSRecord
+            Properties:
+                CertificateArn: !Ref Certificate
+                DomainName: ${self:custom.Domain}
+                ServiceToken: ${self:custom.ServiceToken}
+        DnsRecordsCertificateValidation:
+            Type: AWS::Route53::RecordSetGroup
+            Properties:
+                HostedZoneId: ${self:custom.DomainZone}
+                RecordSets:
+                    - Name: !GetAtt CertificateDnsRecord.Name
+                      Type: !GetAtt CertificateDnsRecord.Type
+                      TTL: 60
+                      Weight: 1
+                      SetIdentifier: !Ref Certificate
+                      ResourceRecords:
+                          - !GetAtt CertificateDnsRecord.Value
+        ApiGatewayDomainName:
+            DependsOn:
+                - CertificateBlocker
+            Type: AWS::ApiGatewayV2::DomainName
+            Properties:
+                DomainName: ${self:custom.Domain}
+                DomainNameConfigurations:
+                    - CertificateArn: !Ref Certificate
+                      EndpointType: REGIONAL
+        ApiGatewayDomainMapping:
+            DependsOn:
+                - ApiGatewayDomainName
+            Type: AWS::ApiGatewayV2::ApiMapping
+            Properties:
+                ApiId: !Ref HttpApi
+                DomainName: ${self:custom.Domain}
+                Stage: !Ref HttpApiStage
+        MainDnsRecords:
+            Type: AWS::Route53::RecordSetGroup
+            Properties:
+                HostedZoneId: ${self:custom.DomainZone}
+                RecordSets:
+                    - AliasTarget:
+                          DNSName: !GetAtt ApiGatewayDomainName.RegionalDomainName
+                          HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
+                      Name: ${self:custom.Domain}
+                      Type: A
+    Outputs:
+        AppUrl:
+            Value: https://${self:custom.Domain}
