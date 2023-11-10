@@ -18,6 +18,9 @@ final readonly class RateLimitExceededResponseListener
             return;
         }
 
-        throw new TooManyRequestsHttpException($exception->getRetryAfter()->format('D, d M Y H:i:s T'));
+        throw new TooManyRequestsHttpException(
+            retryAfter: $exception->getRetryAfter()->format('D, d M Y H:i:s T'),
+            message: "You have exceeded your limit for calling this endpoint, try again after {$exception->getRetryAfter()->format('c')}",
+        );
     }
 }
