@@ -8,6 +8,9 @@ provider:
     # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
     stage: prod
     runtime: provided.al2
+    stackTags:
+        BillingProject: NixOsPackageSearch
+        BillingSubproject: NixOsPackageSearchBackend
     environment:
         # Symfony environment variables
         APP_ENV: ${self:provider.stage}
@@ -27,6 +30,7 @@ functions:
         handler: public/index.php
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         memorySize: 512
+        logRetentionInDays: 30
         layers:
             - ${bref:layer.php-82-fpm}
         events:
@@ -36,6 +40,7 @@ functions:
         handler: bin/console
         timeout: 120 # in seconds
         memorySize: 128
+        logRetentionInDays: 30
         layers:
             - ${bref:layer.php-82} # PHP
             - ${bref:layer.console} # The "console" layer
