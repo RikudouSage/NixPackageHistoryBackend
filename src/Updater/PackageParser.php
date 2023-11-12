@@ -4,6 +4,7 @@ namespace App\Updater;
 
 use App\Dto\GitRevision;
 use App\Entity\Package;
+use DateTimeImmutable;
 use Psr\Cache\CacheItemPoolInterface;
 
 final readonly class PackageParser
@@ -33,8 +34,9 @@ final readonly class PackageParser
             return [];
         }
 
-        foreach ($json as $packageName =>  $item) {
-            yield new Package($packageName, $item['version'], $revision->revision);
+        foreach ($json as $packageName => $item) {
+            yield (new Package($packageName, $item['version'], $revision->revision))
+                ->setDatetime(DateTimeImmutable::createFromInterface($revision->dateTime));
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PackageRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 
@@ -15,6 +16,9 @@ class Package implements JsonSerializable
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column]
+    private ?DateTimeImmutable $datetime = null;
 
     public function __construct(
         #[ORM\Column(length: 180)]
@@ -74,5 +78,17 @@ class Package implements JsonSerializable
             'revision' => $this->getRevision(),
             'version' => $this->getVersion(),
         ];
+    }
+
+    public function getDatetime(): ?DateTimeImmutable
+    {
+        return $this->datetime;
+    }
+
+    public function setDatetime(DateTimeImmutable $datetime): static
+    {
+        $this->datetime = $datetime;
+
+        return $this;
     }
 }

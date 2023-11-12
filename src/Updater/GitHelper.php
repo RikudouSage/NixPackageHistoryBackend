@@ -39,4 +39,16 @@ final readonly class GitHelper
             }
         } while (true);
     }
+
+    public function getRevision(string $repositoryPath, string $revision): GitRevision
+    {
+        $originalWorkingDirectory = getcwd() ?: throw new RuntimeException('Cannot get current working directory');
+        $command = "git show --pretty=format:\"%H %cd\" --date=iso-strict {$revision} -q";
+        chdir($repositoryPath) || throw new InvalidArgumentException("The repository at '{$repositoryPath}' does not exist.");
+        $output = trim(shell_exec($command));
+        chdir($originalWorkingDirectory);
+        $parts = explode(" ", $output);
+
+        return new GitRevision(revision: $parts[0], dateTime: (new DateTimeImmutable($parts[1]))->setTimezone(new DateTimeZone('UTC')));
+    }
 }

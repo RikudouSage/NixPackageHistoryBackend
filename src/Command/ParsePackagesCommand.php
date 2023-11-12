@@ -44,6 +44,12 @@ final class ParsePackagesCommand extends Command
                 'Amount of days to skip between imports',
                 0,
             )
+            ->addOption(
+                'stop-at',
+                null,
+                InputOption::VALUE_REQUIRED,
+                "Datetime to stop at - anything older than this value will not be parsed",
+            )
         ;
     }
 
@@ -53,6 +59,7 @@ final class ParsePackagesCommand extends Command
 
         $ref = $input->getOption('start-at');
         $skipDays = $input->getOption('skip');
+        $stopAt = $input->getOption('stop-at') ? new DateTimeImmutable($input->getOption('stop-at')) : null;
 
         $skipDays = $skipDays ? new DateInterval("P{$skipDays}D") : null;
         /** @var DateTimeImmutable|null $lastDate */
@@ -60,13 +67,17 @@ final class ParsePackagesCommand extends Command
 
         $connection = $this->entityManager->getConnection();
         foreach ($this->gitHelper->getRevisions($this->pathToNixpkgs, $ref) as $revision) {
+            if ($stopAt && $revision->dateTime < $stopAt) {
+                $io->note("Stopping at {$revision->revision} because the revision's date ({$revision->dateTime->format('c')}) is older than specified ({$stopAt->format('c')})");
+                break;
+            }
             if ($lastDate !== null && $skipDays !== null && $lastDate->sub($skipDays) < $revision->dateTime) {
                 $io->note("Skipping revision {$revision->revision} ({$revision->dateTime->format('c')})");
                 continue;
             }
 
             $io->note("Parsing revision '{$revision->revision}' ({$revision->dateTime->format('c')})");
-            $insertQuery = "INSERT INTO packages (name, version, revision) VALUES ";
+            $insertQuery = "INSERT INTO packages (name, version, revision, datetime) VALUES ";
             foreach ($this->packageParser->getPackages($revision) as $package) {
                 $query = "SELECT * FROM packages WHERE name = ? AND version = ?";
                 $existing = $connection->executeQuery($query, [$package->getName(), $package->getVersion()])->fetchAllAssociative();
@@ -74,7 +85,7 @@ final class ParsePackagesCommand extends Command
                     continue;
                 }
                 $io->note("Adding package '{$package->getName()}' ({$package->getVersion()}) at {$revision->revision}");
-                $insertQuery .= "('{$package->getName()}', '{$package->getVersion()}', '{$package->getRevision()}'), ";
+                $insertQuery .= "('{$package->getName()}', '{$package->getVersion()}', '{$package->getRevision()}', '{$package->getDatetime()->format('c')}'), ";
             }
             $insertQuery = substr($insertQuery, 0, -2);
             if (!str_ends_with($insertQuery, 'VALUE')) {
