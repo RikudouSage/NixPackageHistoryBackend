@@ -63,6 +63,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Package'
+  /latest-revision:
+    get:
+      summary: Returns the latest revision and datetime
+      description: Returns the latest revision and datetime
+      tags:
+        - Info
+      responses:
+        200:
+          description: OK, returns the data
+          content:
+            application/json:
+              examples:
+                NoData:
+                  description: No revisions are present in the database
+                  value:
+                    revision: ~
+                    datetime: ~
+                Ok:
+                  description: Normal response when some revisions are in the database
+                  value:
+                    revision: 5cfc5b082cfd5cf5883d0cf161e90249b444cad1
+                    datetime: 2023-11-12T21:52:24+00:00
+              schema:
+                type: object
+                properties:
+                  revision:
+                    type: string
+                    example: 5cfc5b082cfd5cf5883d0cf161e90249b444cad1
+                    nullable: true
+                  datetime:
+                    type: string
+                    format: date-time
+                    example: 2023-11-12T21:52:24+00:00
+                    nullable: true
 components:
   schemas:
     Package:
