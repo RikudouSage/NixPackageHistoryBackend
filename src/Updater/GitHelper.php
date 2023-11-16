@@ -16,26 +16,26 @@ final readonly class GitHelper
     public function getRevisions(string $repositoryPath, string $startingCommit = 'HEAD'): iterable
     {
         $originalWorkingDirectory = getcwd() ?: throw new RuntimeException('Cannot get current working directory');
-        $isFirst = true;
-        $commandTemplate = 'git log --pretty=format:"%%H %%cd" --date=iso-strict %1$s~50..%1$s';
+        $commandTemplate = 'git rev-list --max-count=50 --format=format:"%%H %%cd" --date=iso-strict %s';
         do {
             $command = sprintf($commandTemplate, $startingCommit);
-            if ($isFirst) {
-                $isFirst = false;
-            } else {
-                $command .= '^';
-            }
             chdir($repositoryPath) || throw new InvalidArgumentException("The repository at '{$repositoryPath}' does not exist.");
             $output = trim(shell_exec($command));
             chdir($originalWorkingDirectory);
             $lines = explode("\n", $output);
+            $i = 0;
             foreach ($lines as $line) {
+                if ($i % 2 === 0) {
+                    ++$i;
+                    continue;
+                }
                 $parts = explode(" ", $line);
                 yield new GitRevision(
                     revision: $parts[0],
                     dateTime: (new DateTimeImmutable($parts[1]))->setTimezone(new DateTimeZone('UTC')),
                 );
                 $startingCommit = $parts[0];
+                ++$i;
             }
         } while (true);
     }
