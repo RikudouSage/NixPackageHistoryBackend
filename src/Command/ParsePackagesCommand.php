@@ -78,21 +78,20 @@ final class ParsePackagesCommand extends Command
 
             $io->note("Parsing revision '{$revision->revision}' ({$revision->dateTime->format('c')})");
             $insertQuery = "INSERT INTO packages (name, version, revision, datetime) VALUES ";
+            $i = 1;
             foreach ($this->packageParser->getPackages($revision) as $package) {
-                $query = "SELECT * FROM packages WHERE name = ? AND version = ?";
-                $existing = $connection->executeQuery($query, [$package->getName(), $package->getVersion()])->fetchAllAssociative();
-                if (count($existing)) {
-                    continue;
+                if ($io->isVerbose()) {
+                    $io->note("Adding or updating package '{$package->getName()}' ({$package->getVersion()}) at {$revision->revision}");
                 }
-                $io->note("Adding package '{$package->getName()}' ({$package->getVersion()}) at {$revision->revision}");
                 $insertQuery .= "('{$package->getName()}', '{$package->getVersion()}', '{$package->getRevision()}', '{$package->getDatetime()->format('c')}'), ";
+                ++$i;
             }
+
             $insertQuery = substr($insertQuery, 0, -2);
-            if (!str_ends_with($insertQuery, 'VALUE')) {
-                $connection->executeStatement($insertQuery);
-            }
+            $insertQuery .= " ON CONFLICT (name, version) DO UPDATE SET revision = excluded.revision, datetime = excluded.datetime WHERE excluded.datetime > packages.datetime";
+            $connection->executeStatement($insertQuery);
             $lastDate = $revision->dateTime;
-            $io->success("{$revision->revision} added");
+            $io->success("{$revision->revision} parsed with {$i} packages added/updated");
         }
         return self::SUCCESS;
     }
