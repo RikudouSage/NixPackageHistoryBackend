@@ -33,6 +33,8 @@ you need to generate them as well:
 - `./bin/console doctrine:migrations:diff` (skip this if you're using SQLite)
 - `./bin/console doctrine:migrations:migrate -n`
 
+> Tip: IF you want to use the database used at the hosted version, you can download it from [database/database.db](database/database.db).
+
 ## Updater
 
 The updater parses information from the official [nixpkgs repo](https://github.com/NixOS/nixpkgs).
@@ -63,9 +65,7 @@ You can customize the behavior using these parameters:
 - `--start-at <commit-ref>` - the commit reference to start at, defaults to `HEAD`
 - `--skip` - the amount of days to skip when parsing, meaning it will parse packages from a commit only if it's older than
   the specified amount of days compared to the last imported commit
-
-> Note that the command will probably crash because there are some memory leaks, in that case just run the same command
-> but specify `--start-at` to the last commit you see in the console output.
+- `--stop-at` - the date and time that is the oldest allowed for import
 
 The command will traverse all available commits and extract package name and version, along with the information
 about which revision contains the version. This will be stored in the database.
