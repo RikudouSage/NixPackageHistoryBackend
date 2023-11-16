@@ -87,6 +87,10 @@ final class ParsePackagesCommand extends Command
                 ++$i;
             }
 
+            if (str_ends_with($insertQuery, 'VALUES ')) {
+                $io->warning('No packages found, skipping');
+                continue;
+            }
             $insertQuery = substr($insertQuery, 0, -2);
             $insertQuery .= " ON CONFLICT (name, version) DO UPDATE SET revision = excluded.revision, datetime = excluded.datetime WHERE excluded.datetime > packages.datetime";
             $connection->executeStatement($insertQuery);
