@@ -47,7 +47,7 @@ plugins:
 
 functions:
     # This function runs the Symfony website/API
-    web2:
+    web:
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         memorySize: 512
         logRetentionInDays: 30
