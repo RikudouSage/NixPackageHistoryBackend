@@ -25,6 +25,11 @@ provider:
     stackTags:
         BillingProject: NixOsPackageSearch
         BillingSubproject: NixOsPackageSearchBackend
+    ecr:
+        images:
+            app:
+                path: ./
+                file: docker/Dockerfile
     environment:
         # Symfony environment variables
         APP_ENV: ${self:provider.stage}
@@ -42,24 +47,14 @@ plugins:
 
 functions:
     # This function runs the Symfony website/API
-    web:
-        handler: public/index.php
+    web2:
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         memorySize: 512
         logRetentionInDays: 30
-        layers:
-            - ${bref:layer.php-82-fpm}
+        image:
+            name: app
         events:
             - httpApi: '*'
-    # This function let us run console commands in Lambda
-    console:
-        handler: bin/console
-        timeout: 120 # in seconds
-        memorySize: 128
-        logRetentionInDays: 30
-        layers:
-            - ${bref:layer.php-82} # PHP
-            - ${bref:layer.console} # The "console" layer
 
 package:
     patterns:

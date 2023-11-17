@@ -1,0 +1,10 @@
+.git
+serverless.yml
+var/cache/dev/**
+.gitattributes
+.gitignore
+LICENSE
+openapi.yaml
+README.md
+shell.nix
+.idea
