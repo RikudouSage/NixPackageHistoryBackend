@@ -77,6 +77,7 @@ class Package implements JsonSerializable
             'name' => $this->getName(),
             'revision' => $this->getRevision(),
             'version' => $this->getVersion(),
+            'datetime' => $this->datetime->format('c'),
         ];
     }
 
