@@ -33,8 +33,6 @@ you need to generate them as well:
 - `./bin/console doctrine:migrations:diff` (skip this if you're using SQLite)
 - `./bin/console doctrine:migrations:migrate -n`
 
-> Tip: IF you want to use the database used at the hosted version, you can download it from [database/database.db](database/database.db).
-
 ## Updater
 
 The updater parses information from the official [nixpkgs repo](https://github.com/NixOS/nixpkgs).
