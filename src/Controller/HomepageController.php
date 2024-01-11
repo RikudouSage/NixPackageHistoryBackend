@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Package;
+use App\Enum\NamedSetting;
 use App\Repository\PackageRepository;
+use App\Service\Settings;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,23 +27,11 @@ final class HomepageController extends AbstractController
     }
 
     #[Route('/latest-revision', name: 'app.latest_revision', methods: [Request::METHOD_GET])]
-    public function lastRevision(PackageRepository $repository): JsonResponse
+    public function lastRevision(Settings $settings): JsonResponse
     {
-        $latest = $repository->createQueryBuilder('p')
-            ->setMaxResults(1)
-            ->orderBy('p.datetime', 'DESC')
-            ->getQuery()
-            ->getSingleResult();
-        if (!$latest instanceof Package) {
-            return new JsonResponse([
-                'revision' => null,
-                'datetime' => null,
-            ]);
-        }
-
         return new JsonResponse([
-            'revision' => $latest->getRevision(),
-            'datetime' => $latest->getDatetime()?->format('c'),
+            'revision' => $settings->getSetting(NamedSetting::LatestRevision),
+            'datetime' => $settings->getSetting(NamedSetting::LatestRevisionDatetime),
         ]);
     }
 }

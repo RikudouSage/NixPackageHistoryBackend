@@ -2,6 +2,10 @@
 
 namespace App\Command;
 
+use App\Entity\Package;
+use App\Enum\NamedSetting;
+use App\Repository\PackageRepository;
+use App\Service\Settings;
 use App\Updater\GitHelper;
 use App\Updater\PackageParser;
 use DateInterval;
@@ -13,6 +17,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[AsCommand('app:parse-packages')]
 final class ParsePackagesCommand extends Command
@@ -22,6 +27,8 @@ final class ParsePackagesCommand extends Command
         private readonly GitHelper $gitHelper,
         private readonly EntityManagerInterface $entityManager,
         private readonly string $pathToNixpkgs,
+        private readonly Settings $settings,
+        private readonly PackageRepository $packageRepository,
     ) {
         parent::__construct();
     }
@@ -98,6 +105,20 @@ final class ParsePackagesCommand extends Command
             $lastDate = $revision->dateTime;
             $io->success("{$revision->revision} parsed with {$i} packages added/updated");
         }
+
+        $latest = $this->packageRepository->createQueryBuilder('p')
+            ->setMaxResults(1)
+            ->orderBy('p.datetime', 'DESC')
+            ->getQuery()
+            ->getSingleResult();
+        if (!$latest instanceof Package) {
+            $io->error('Failed getting latest revision');
+            return self::FAILURE;
+        }
+
+        $this->settings->setSetting(NamedSetting::LatestRevision, $latest->getRevision());
+        $this->settings->setSetting(NamedSetting::LatestRevisionDatetime, $latest->getDatetime()?->format('c'));
+
         return self::SUCCESS;
     }
 }
