@@ -23,7 +23,7 @@ final readonly class PackageParser
         if ($cacheItem->isHit()) {
             $json = $cacheItem->get();
         } else {
-            $command = "nix-env -qaP --json -f https://github.com/NixOS/nixpkgs/archive/{$revision->revision}.zip";
+            $command = "nix-env -qaP --meta --json -f https://github.com/NixOS/nixpkgs/archive/{$revision->revision}.zip";
             $output = shell_exec($command);
             $json = json_decode($output, true);
             $cacheItem->set($json);
@@ -36,7 +36,10 @@ final readonly class PackageParser
 
         foreach ($json as $packageName => $item) {
             yield (new Package($packageName, $item['version'], $revision->revision))
-                ->setDatetime(DateTimeImmutable::createFromInterface($revision->dateTime));
+                ->setDatetime(DateTimeImmutable::createFromInterface($revision->dateTime))
+                ->setUnfree($item['meta']['unfree'] ?? null)
+                ->setPlatforms($item['meta']['platforms'] ?? null)
+            ;
         }
     }
 }

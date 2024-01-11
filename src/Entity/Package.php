@@ -20,6 +20,12 @@ class Package implements JsonSerializable
     #[ORM\Column]
     private ?DateTimeImmutable $datetime = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $unfree = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $platforms = null;
+
     public function __construct(
         #[ORM\Column(length: 180)]
         private string $name,
@@ -89,6 +95,30 @@ class Package implements JsonSerializable
     public function setDatetime(DateTimeImmutable $datetime): static
     {
         $this->datetime = $datetime;
+
+        return $this;
+    }
+
+    public function isUnfree(): ?bool
+    {
+        return $this->unfree;
+    }
+
+    public function setUnfree(?bool $unfree): static
+    {
+        $this->unfree = $unfree;
+
+        return $this;
+    }
+
+    public function getPlatforms(): ?array
+    {
+        return $this->platforms;
+    }
+
+    public function setPlatforms(?array $platforms): static
+    {
+        $this->platforms = $platforms;
 
         return $this;
     }
