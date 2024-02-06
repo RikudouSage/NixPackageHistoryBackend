@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-sqlite3": "*",
+        "async-aws/simple-s3": "^2.1",
         "bref/bref": "^2.1",
         "bref/symfony-bridge": "^0.2.2",
         "doctrine/doctrine-bundle": "^2.10",

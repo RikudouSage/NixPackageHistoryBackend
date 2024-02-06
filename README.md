@@ -33,6 +33,11 @@ you need to generate them as well:
 - `./bin/console doctrine:migrations:diff` (skip this if you're using SQLite)
 - `./bin/console doctrine:migrations:migrate -n`
 
+## Setting up file storage
+
+If you don't want to transfer large amounts of data (like list of all packages) from your applicaton server,
+you can change `USE_STORAGE` to `1` and `S3_BUCKET` to the name of the bucket that will store the cached packages.
+
 ## Updater
 
 The updater parses information from the official [nixpkgs repo](https://github.com/NixOS/nixpkgs).
