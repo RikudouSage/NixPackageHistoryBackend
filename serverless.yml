@@ -22,6 +22,15 @@ provider:
               - dynamodb:PutItem
               - dynamodb:UpdateItem
               - dynamodb:DeleteItem
+          - Effect: Allow
+            Resource:
+                - !Join [ '/', [ !GetAtt CacheBucket.Arn, '*' ] ]
+                - !GetAtt CacheBucket.Arn
+            Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:DeleteObject
     stackTags:
         BillingProject: NixOsPackageSearch
         BillingSubproject: NixOsPackageSearchBackend
@@ -36,6 +45,8 @@ provider:
         APP_SECRET: !Join [ '', [ '{{resolve:secretsmanager:', !Ref AppSecret, ':SecretString:secret}}' ] ]
         DYNAMODB_CACHE_TABLE: !Ref CacheTable
         RATE_LIMIT_CACHE_SERVICE: rikudou.dynamo_cache.cache
+        S3_BUCKET: !Ref CacheBucket
+        USE_STORAGE: 1
 
 custom:
     Domain: ${env:DOMAIN_NAME}
@@ -156,6 +167,19 @@ resources:
                           HostedZoneId: !GetAtt ApiGatewayDomainName.RegionalHostedZoneId
                       Name: ${self:custom.Domain}
                       Type: A
+        CacheBucket:
+            Type: AWS::S3::Bucket
+            Properties:
+                CorsConfiguration:
+                    CorsRules:
+                        - AllowedHeaders: [ "*" ]
+                          AllowedMethods: [ GET ]
+                          AllowedOrigins: [ "*" ]
+                PublicAccessBlockConfiguration:
+                    BlockPublicAcls: false
+                    BlockPublicPolicy: false
+                    IgnorePublicAcls: false
+                    RestrictPublicBuckets: false
     Outputs:
         AppUrl:
             Value: https://${self:custom.Domain}

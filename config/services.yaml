@@ -28,3 +28,5 @@ services:
     App\Command\ParsePackagesCommand:
         arguments:
             $pathToNixpkgs: '%env(PATH_TO_NIXPKGS)%'
+
+    AsyncAws\SimpleS3\SimpleS3Client:
