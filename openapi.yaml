@@ -97,6 +97,35 @@ paths:
                     format: date-time
                     example: 2023-11-12T21:52:24+00:00
                     nullable: true
+  /tags:
+    get:
+      summary: List all tags (package groups)
+      description: Returns list of all tags which group together multiple packages under a single name
+      tags:
+        - Packages
+        - Tags
+      responses:
+        200:
+          description: OK, returns the data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    tag:
+                      type: string
+                      example: php
+                    packages:
+                      type: array
+                      example:
+                        - php
+                        - php81
+                        - php82
+                        - php83
+                      items:
+                        type: string
 components:
   schemas:
     Package:
