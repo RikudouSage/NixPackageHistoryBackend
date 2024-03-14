@@ -1,4 +1,4 @@
-FROM bref/php-82-fpm:2
+FROM bref/php-83-fpm:latest
 
 # Copy the source code in the image
 COPY . /var/task
