@@ -7,6 +7,7 @@
         "php": "^8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-pdo": "*",
         "ext-sqlite3": "*",
         "async-aws/simple-s3": "^2.1",
         "bref/bref": "^2.1",
