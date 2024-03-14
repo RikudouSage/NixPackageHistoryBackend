@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use App\Repository\PackageTagRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
+use Override;
 
 #[ORM\Entity(repositoryClass: PackageTagRepository::class)]
 #[ORM\Table(name: 'tags')]
-class PackageTag
+class PackageTag implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,5 +49,14 @@ class PackageTag
         $this->packageNames = $packageNames;
 
         return $this;
+    }
+
+    #[Override]
+    public function jsonSerialize(): array
+    {
+        return [
+            'tag' => $this->tag,
+            'packages' => $this->packageNames,
+        ];
     }
 }
