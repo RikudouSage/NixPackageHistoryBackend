@@ -29,7 +29,7 @@ final class ExtractTagsCommand extends Command
     {
         $this->initializeDatabase();
         foreach ($this->ruleRepository->findAll() as $rule) {
-            $result = $this->connection->executeQuery('select name from packages where name regexp :regex group by name', ['regex' => $rule->getRegex()]);
+            $result = $this->connection->executeQuery('select name from packages where name regexp :regex group by name order by max(datetime) desc, name desc', ['regex' => $rule->getRegex()]);
             $packageNames = $result->fetchFirstColumn();
             $tag = $this->tagRepository->findOneBy(['tag' => $rule->getTagName()]) ?? (new PackageTag())->setTag($rule->getTagName());
             $tag->setPackageNames($packageNames);
