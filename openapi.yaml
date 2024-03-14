@@ -102,7 +102,6 @@ paths:
       summary: List all tags (package groups)
       description: Returns list of all tags which group together multiple packages under a single name
       tags:
-        - Packages
         - Tags
       responses:
         200:
@@ -112,22 +111,44 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    tag:
-                      type: string
-                      example: php
-                    packages:
-                      type: array
-                      example:
-                        - php
-                        - php81
-                        - php82
-                        - php83
-                      items:
-                        type: string
+                  $ref: '#/components/schemas/Tag'
+  /tags/{tag}:
+    get:
+      summary: Detail of a single tag (package group)
+      description: Returns details about a single tag which groups together multiple packages under a single name
+      parameters:
+        - in: path
+          name: tag
+          schema:
+            type: string
+          description: The tag to get
+      tags:
+        - Tags
+      responses:
+        200:
+          description: OK, returns the detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
 components:
   schemas:
+    Tag:
+      description: A group of packages grouped under a single tag
+      type: object
+      properties:
+        tag:
+          type: string
+          example: php
+        packages:
+          type: array
+          example:
+            - php
+            - php81
+            - php82
+            - php83
+          items:
+            type: string
     Package:
       description: A package with a version and git revision
       type: object

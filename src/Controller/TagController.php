@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Enum\NamedSetting;
+use App\Repository\PackageRepository;
 use App\Repository\PackageTagRepository;
 use App\Service\Settings;
 use App\Service\Storage;
@@ -39,5 +40,20 @@ final class TagController extends AbstractController
         }
 
         return $this->redirect($storage->getObjectLink($key));
+    }
+
+    #[Route('/tags/{tag}', name: 'app.tags.detail', methods: [Request::METHOD_GET])]
+    public function getTag(
+        string $tag,
+        PackageTagRepository $tagRepository,
+        Request $request,
+        RateLimiterFactory $tagDetailLimiter,
+    ): JsonResponse {
+        $limiter = $tagDetailLimiter->create($request->getClientIp());
+        $limiter->consume()->ensureAccepted();
+
+        return new JsonResponse($tagRepository->findOneBy([
+            'tag' => $tag,
+        ]));
     }
 }
