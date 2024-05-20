@@ -6,6 +6,7 @@ use App\Repository\PackageRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Override;
 
 #[ORM\UniqueConstraint(fields: ['name', 'version'])]
 #[ORM\Entity(repositoryClass: PackageRepository::class)]
@@ -77,6 +78,7 @@ class Package implements JsonSerializable
         return $this;
     }
 
+    #[Override]
     public function jsonSerialize(): array
     {
         return [

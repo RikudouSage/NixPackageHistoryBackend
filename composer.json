@@ -77,6 +77,7 @@
         }
     },
     "require-dev": {
+        "rector/rector": "^1.1",
         "symfony/maker-bundle": "^1.51"
     }
 }

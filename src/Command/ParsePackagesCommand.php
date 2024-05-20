@@ -11,6 +11,7 @@ use App\Updater\PackageParser;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,6 +34,7 @@ final class ParsePackagesCommand extends Command
         parent::__construct();
     }
 
+    #[Override]
     protected function configure()
     {
         $this
@@ -59,6 +61,7 @@ final class ParsePackagesCommand extends Command
         ;
     }
 
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

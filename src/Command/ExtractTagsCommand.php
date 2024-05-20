@@ -7,6 +7,7 @@ use App\Repository\PackageTagRepository;
 use App\Repository\TagExtractionRuleRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Override;
 use PDO;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,6 +26,7 @@ final class ExtractTagsCommand extends Command
         parent::__construct();
     }
 
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initializeDatabase();
@@ -44,8 +46,6 @@ final class ExtractTagsCommand extends Command
     {
         $pdo = $this->connection->getNativeConnection();
         assert($pdo instanceof PDO);
-        $pdo->sqliteCreateFunction('regexp', function (string $pattern, string $string): bool {
-            return (bool) preg_match('@' . str_replace('@', '\\@', $pattern) . '@', $string);
-        });
+        $pdo->sqliteCreateFunction('regexp', fn(string $pattern, string $string): bool => (bool) preg_match('@' . str_replace('@', '\\@', $pattern) . '@', $string));
     }
 }
