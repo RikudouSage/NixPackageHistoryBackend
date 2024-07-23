@@ -24,6 +24,8 @@ final class HomepageController extends AbstractController
                 $urlGenerator->generate('app.packages.version.detail', ['package' => 'php', 'version' => '8.2.11'], referenceType: UrlGeneratorInterface::ABSOLUTE_URL),
                 $urlGenerator->generate('app.tags', referenceType: UrlGeneratorInterface::ABSOLUTE_URL),
                 $urlGenerator->generate('app.tags.detail', ['tag' => 'php'], referenceType: UrlGeneratorInterface::ABSOLUTE_URL),
+                $urlGenerator->generate('app.latest_revision', referenceType: UrlGeneratorInterface::ABSOLUTE_URL),
+                $urlGenerator->generate('app.stats', referenceType: UrlGeneratorInterface::ABSOLUTE_URL),
             ],
         ]);
     }
