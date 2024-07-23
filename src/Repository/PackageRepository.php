@@ -33,4 +33,21 @@ class PackageRepository extends ServiceEntityRepository
             'name',
         );
     }
+
+    public function getVersionCount(): int
+    {
+        return $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getPackageCount(): int
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT p.name)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
