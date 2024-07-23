@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -48,7 +49,13 @@ final class PackageController extends AbstractController
         ]));
     }
 
-    #[Route('/packages', name: 'app.packages.list', methods: [Request::METHOD_GET])]
+    #[Route('/packages', name: 'app.packages.list.redirect')]
+    public function packageRedirect(): RedirectResponse
+    {
+        return $this->redirectToRoute('app.package_names.list', status: Response::HTTP_PERMANENTLY_REDIRECT);
+    }
+
+    #[Route('/package-names', name: 'app.package_names.list', methods: [Request::METHOD_GET])]
     public function getPackageNames(
         PackageRepository $packageRepository,
         RateLimiterFactory $allPackagesLimiter,
