@@ -1,6 +1,7 @@
 .git
 serverless.yml
 var/cache/dev/**
+var/log/dev.log
 .gitattributes
 .gitignore
 LICENSE
