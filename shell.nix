@@ -13,7 +13,7 @@ pkgs.mkShell {
         php83.packages.composer
         symfony-cli
         git
-        nodejs_18
+        nodejs_22
         nodePackages.serverless
     ];
 }
