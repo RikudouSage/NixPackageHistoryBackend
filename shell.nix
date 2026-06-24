@@ -7,6 +7,7 @@ pkgs.mkShell {
                 memory_limit=8G
             '';
         };
+        sls = import (builtins.fetchTarball https://github.com/nixos/nixpkgs/tarball/667993862518f5a890747dfe7aba2c6d0c7787ce) {};
      in
      [
         php83
@@ -14,6 +15,6 @@ pkgs.mkShell {
         symfony-cli
         git
         nodejs_22
-        nodePackages.serverless
+        sls.nodePackages.serverless
     ];
 }
